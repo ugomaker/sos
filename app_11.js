@@ -17,6 +17,7 @@ let mapDone = false;
 let defiMap = null;
 let daeIdx = 0;
 let daeAutoTimer = null;
+let geodaeData = null;
 const BPM = 110;
 const BEAT_MS = Math.round(60000 / BPM);
 const INSUF_DURATION = 1600;
@@ -31,7 +32,6 @@ var plsAudioCtx = null;
 function startPlsTimer() {
   if (plsTimerInterval) clearInterval(plsTimerInterval);
   plsTimerInterval = setInterval(function() {
-    // Bip d'alerte
     try {
       plsAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
       for (var i = 0; i < 3; i++) {
@@ -48,12 +48,10 @@ function startPlsTimer() {
         })(i * 0.4);
       }
     } catch(e) {}
-    // Vibration
     if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 300]);
-    // Afficher la bannière
     var rem = document.getElementById('pls-reminder');
     if (rem) rem.style.display = 'block';
-  }, 120000); // 2 minutes
+  }, 120000);
 }
 
 function stopPlsTimer() {
@@ -72,10 +70,8 @@ function go(id) {
   document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
-  // Afficher la barre du bas uniquement sur l'écran d'accueil
   var bar = document.getElementById('bottom-bar');
   if (bar) bar.style.display = (id === 's-welcome') ? 'flex' : 'none';
-  // Timer PLS
   if (id === 's-pls') { startPlsTimer(); } else { stopPlsTimer(); }
   attachHandlers();
 }
@@ -86,7 +82,6 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 // DISPATCHER
 // ============================================================
 function attachHandlers() {
-  // Un seul listener sur le document, évite les doublons et stopPropagation
   if (attachHandlers._done) return;
   attachHandlers._done = true;
   document.addEventListener('click', function(e) {
@@ -149,9 +144,7 @@ function activerSoignant() {
   }
 }
 
-function respireNon() {
-  startCardiac();
-}
+function respireNon() { startCardiac(); }
 
 function retourDepuisCardiac() {
   stopMetro(); stopAutoSwipe(); stopChrono();
@@ -203,13 +196,11 @@ function flashDae() {
     daeScr.classList.add('beat-flash'); if (daeCar) daeCar.classList.add('beat-flash');
     setTimeout(function() { daeScr.classList.remove('beat-flash'); if (daeCar) daeCar.classList.remove('beat-flash'); }, 130);
   }
-  // Flash modale noyade si ouverte
   var modalNoyade = document.getElementById('modal-noyade');
   if (modalNoyade && modalNoyade.style.display !== 'none') {
     var inner = modalNoyade.querySelector('.modal-inner');
     if (inner) { inner.classList.add('beat-flash'); setTimeout(function() { inner.classList.remove('beat-flash'); }, 130); }
   }
-  // Flash carte DAE
   var map = document.getElementById('defi-map2');
   if (map) { map.classList.add('beat-flash'); setTimeout(function() { map.classList.remove('beat-flash'); }, 130); }
 }
@@ -244,7 +235,6 @@ function stopMetro() {
   if (c) c.classList.remove('beat-flash', 'insuf-flash');
 }
 
-
 // ============================================================
 // CHRONOMETRE + ADRESSE GPS
 // ============================================================
@@ -277,8 +267,6 @@ function updateChronoDisplay() {
   var m = Math.floor(chronoSeconds / 60);
   var s = chronoSeconds % 60;
   d.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-  // Alerte jaune après 2 minutes
-  // pas d'alerte couleur
 }
 
 function fetchAddress() {
@@ -311,17 +299,37 @@ function startCardiac() {
 }
 
 // ============================================================
-// CARTE
+// CARTE — BASE NATIONALE DAE
 // ============================================================
+
+// Calcul distance Haversine en km
+function haversine(lat1, lng1, lat2, lng2) {
+  var R = 6371;
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLng = (lng2 - lng1) * Math.PI / 180;
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2)
+        + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+        * Math.sin(dLng/2) * Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function initMap() {
   var st = document.getElementById('map-status2');
   if (!navigator.geolocation) { st.textContent = 'Géolocalisation non disponible.'; buildMap(45.764, 4.835); return; }
   navigator.geolocation.getCurrentPosition(
-    function(p) { st.textContent = ''; buildMap(p.coords.latitude, p.coords.longitude); loadDefis(p.coords.latitude, p.coords.longitude); },
-    function(err) { st.textContent = 'Activez la géolocalisation (' + err.message + ').'; buildMap(48.857, 2.347); },
+    function(p) {
+      st.textContent = '';
+      buildMap(p.coords.latitude, p.coords.longitude);
+      loadDefis(p.coords.latitude, p.coords.longitude);
+    },
+    function(err) {
+      st.textContent = 'Activez la géolocalisation (' + err.message + ').';
+      buildMap(48.857, 2.347);
+    },
     { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
   );
 }
+
 function buildMap(lat, lng) {
   defiMap = L.map('defi-map2', { zoomControl: true }).setView([lat, lng], 15);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -331,47 +339,69 @@ function buildMap(lat, lng) {
     .addTo(defiMap).bindPopup('Vous êtes ici').openPopup();
   setTimeout(function() { defiMap.invalidateSize(); }, 300);
 }
+
 function loadDefis(lat, lng) {
   var st = document.getElementById('map-status2');
-  st.textContent = 'Recherche en cours...';
-  var q = '[out:json][timeout:20];('
-    + 'node["emergency"="defibrillator"](around:1500,' + lat + ',' + lng + ');'
-    + 'node["amenity"="hospital"]["emergency"="yes"](around:5000,' + lat + ',' + lng + ');'
-    + 'way["amenity"="hospital"]["emergency"="yes"](around:5000,' + lat + ',' + lng + ');'
-    + ');out center;';
-  fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(q))
+  st.textContent = 'Recherche des DAE...';
+
+  var daeIcon = L.divIcon({
+    html: '<div style="background:#F6E05E;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#1a1a1a;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">DAE</div>',
+    iconSize: [34, 34], iconAnchor: [17, 17], className: ''
+  });
+
+  function afficherDae(data) {
+    var count = 0;
+    var RAYON_KM = 1.5;
+    data.forEach(function(d) {
+      var dlat = d[0], dlng = d[1];
+      if (haversine(lat, lng, dlat, dlng) <= RAYON_KM) {
+        count++;
+        var addr     = d[2] || '';
+        var exploit  = d[3] || '';
+        var indoor   = d[4] === 'I' ? 'Intérieur' : (d[4] === 'E' ? 'Extérieur' : '');
+        var location = d[5] || '';
+        var days     = d[6] || '';
+        var hours    = d[7] || '';
+        var popup = '<strong>' + (exploit || 'Défibrillateur') + '</strong>';
+        if (addr)     popup += '<br>📍 ' + addr;
+        if (indoor)   popup += '<br>' + indoor;
+        if (location) popup += '<br>' + location;
+        if (days || hours) popup += '<br>' + [days, hours].filter(Boolean).join(' — ');
+        L.marker([dlat, dlng], { icon: daeIcon }).addTo(defiMap).bindPopup(popup);
+      }
+    });
+    st.textContent = count ? count + ' DAE à proximité (base nationale)' : 'Aucun DAE trouvé dans 1,5 km.';
+  }
+
+  // Si données déjà chargées en mémoire
+  if (geodaeData) { afficherDae(geodaeData); return; }
+
+  // Sinon charger le fichier
+  fetch('geodae.json')
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      var defis = 0;
-      var daeIcon = L.divIcon({
-        html: '<div style="background:#F6E05E;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#1a1a1a;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">DAE</div>',
-        iconSize: [34, 34], iconAnchor: [17, 17], className: ''
-      });
-      var hopIcon = L.divIcon({
-        html: '<div style="background:#1A4A8A;width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);">H</div>',
-        iconSize: [34, 34], iconAnchor: [17, 17], className: ''
-      });
-      data.elements.forEach(function(n) {
-        var clat = n.lat || (n.center && n.center.lat);
-        var clng = n.lon || (n.center && n.center.lon);
-        if (!clat || !clng) return;
-        var name = (n.tags && (n.tags.name || n.tags.operator)) || '';
-        if (n.tags && n.tags.emergency === 'defibrillator') {
-          defis++;
-          var tags = n.tags || {};
-          var popup = '<strong>' + (name || 'Défibrillateur') + '</strong>';
-          if (tags.opening_hours) popup += '<br>🕐 ' + tags.opening_hours;
-          else if (tags['defibrillator:location']) popup += '<br>📍 ' + tags['defibrillator:location'];
-          if (tags.indoor === 'yes') popup += '<br>Intérieur';
-          else if (tags.indoor === 'no') popup += '<br>Extérieur';
-          if (tags.access) popup += '<br>Accès : ' + tags.access;
-          L.marker([clat, clng], { icon: daeIcon }).addTo(defiMap).bindPopup(popup);
-        } else if (n.tags && n.tags.amenity === 'hospital') {
-          L.marker([clat, clng], { icon: hopIcon }).addTo(defiMap).bindPopup('<strong>' + (name || 'Hôpital') + '</strong>');
-        }
-      });
-      st.textContent = defis ? defis + ' défibrillateur(s) à proximité' : 'Aucun DAE trouvé dans 1,5 km.';
-    }).catch(function() { st.textContent = 'Réseau indisponible.'; });
+      geodaeData = data;
+      afficherDae(data);
+    })
+    .catch(function() {
+      // Fallback Overpass si geodae.json indisponible
+      st.textContent = 'Chargement base locale échoué, recherche en ligne...';
+      var q = '[out:json][timeout:20];(node["emergency"="defibrillator"](around:1500,' + lat + ',' + lng + '););out center;';
+      fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(q))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var defis = 0;
+          data.elements.forEach(function(n) {
+            if (!n.lat || !n.lon) return;
+            defis++;
+            var tags = n.tags || {};
+            var popup = '<strong>' + (tags.name || tags.operator || 'Défibrillateur') + '</strong>';
+            if (tags.opening_hours) popup += '<br>' + tags.opening_hours;
+            L.marker([n.lat, n.lon], { icon: daeIcon }).addTo(defiMap).bindPopup(popup);
+          });
+          st.textContent = defis ? defis + ' DAE à proximité' : 'Aucun DAE trouvé dans 1,5 km.';
+        }).catch(function() { st.textContent = 'Réseau indisponible.'; });
+    });
 }
 
 // ============================================================
@@ -408,7 +438,6 @@ function toggleNuit() {
   document.getElementById('btn-night').textContent = isNuit ? 'Mode jour' : 'Mode nuit';
   localStorage.setItem('modeNuit', isNuit ? '1' : '0');
 }
-// Restaurer le mode au chargement
 (function() {
   if (localStorage.getItem('modeNuit') === '1') {
     document.body.classList.add('mode-nuit');
@@ -416,8 +445,6 @@ function toggleNuit() {
     if (btn) btn.textContent = 'Mode jour';
   }
 })();
-
-
 
 // Service Worker pour PWA offline
 if ('serviceWorker' in navigator) {
