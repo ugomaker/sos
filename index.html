@@ -643,7 +643,7 @@
 
 <!-- Modal À propos -->
 <div id="modal-apropos" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:24px;">
-  <div style="background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:420px;position:relative;">
+  <div style="background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:420px;position:relative;max-height:85vh;overflow-y:auto;">
     <button onclick="document.getElementById('modal-apropos').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#666;">✕</button>
 
     <div style="font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:700;color:#CC1A1A;letter-spacing:.06em;margin-bottom:4px;">SOS URGENCE</div>
@@ -681,12 +681,16 @@
       </div>
     </div>
 
-    POLITIQUE DE CONFIDENTIALITÉ
-SOS Urgence respecte votre vie privée. Aucune donnée personnelle n'est collectée, stockée sur un serveur, ni revendue à des tiers.
-Géolocalisation — Utilisée uniquement pour afficher les défibrillateurs à proximité et estimer votre adresse en cas d'urgence. Elle reste sur votre appareil et n'est jamais enregistrée.
-Préférences locales — Le mode nuit est mémorisé directement sur votre appareil (aucune transmission).
-Services tiers — Pour convertir votre position GPS en adresse lisible, l'application interroge le service OpenStreetMap (Nominatim). Aucune donnée n'est conservée par SOS Urgence lors de cet échange.
-Aucun compte, aucun suivi — L'application ne nécessite pas de création de compte et ne contient aucun outil de suivi publicitaire ou statistique.
+    <div style="border-top:1px solid #eee;padding-top:16px;margin-bottom:16px;">
+  <div style="font-family:'Oswald',sans-serif;font-size:.7rem;color:#aaa;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;">Politique de confidentialité</div>
+  <div style="font-size:.82rem;color:#888;line-height:1.7;">
+    SOS Urgence respecte votre vie privée. Aucune donnée personnelle n'est collectée, stockée sur un serveur, ni revendue à des tiers.<br><br>
+    <strong style="color:#555;">Géolocalisation</strong> — Utilisée uniquement pour afficher les défibrillateurs à proximité et estimer votre adresse en cas d'urgence. Elle reste sur votre appareil et n'est jamais enregistrée.<br><br>
+    <strong style="color:#555;">Préférences locales</strong> — Le mode nuit est mémorisé directement sur votre appareil (aucune transmission).<br><br>
+    <strong style="color:#555;">Services tiers</strong> — Pour convertir votre position GPS en adresse lisible, l'application interroge le service OpenStreetMap (Nominatim). Aucune donnée n'est conservée par SOS Urgence lors de cet échange.<br><br>
+    <strong style="color:#555;">Aucun compte, aucun suivi</strong> — L'application ne nécessite pas de création de compte et ne contient aucun outil de suivi publicitaire ou statistique.
+  </div>
+</div>
   </div>
 </div>
 
