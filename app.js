@@ -452,3 +452,57 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(function() {});
   });
 }
+// ============================================================
+// MODE PRO
+// ============================================================
+var SUPABASE_URL = 'https://tkeummevgbmfhavvkwsx.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_UfxUmV7bkzS4MJiojli5LQ_XEMe7-jd';
+var supabaseClient = null;
+
+function getSupabaseClient() {
+  if (!supabaseClient && window.supabase) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return supabaseClient;
+}
+
+function activerCodePro() {
+  var input = document.getElementById('pro-code-input');
+  var errorEl = document.getElementById('pro-error');
+  var code = input.value.trim();
+  errorEl.textContent = '';
+  if (!code) return;
+
+  var client = getSupabaseClient();
+  if (!client) { errorEl.textContent = 'Connexion indisponible, réessayez.'; return; }
+
+  client.from('entreprises').select('*').eq('code', code).single()
+    .then(function(res) {
+      if (res.error || !res.data) {
+        errorEl.textContent = 'Code invalide.';
+        return;
+      }
+      localStorage.setItem('proCode', code);
+      localStorage.setItem('proNom', res.data.nom);
+      localStorage.setItem('proType', res.data.type);
+      showProUnlocked(res.data.nom);
+      client.from('activations').insert({ code: code });
+    })
+    .catch(function() { errorEl.textContent = 'Erreur réseau, réessayez.'; });
+}
+
+function showProUnlocked(nom) {
+  var locked = document.getElementById('pro-locked');
+  var unlocked = document.getElementById('pro-unlocked');
+  var nomEl = document.getElementById('pro-nom');
+  if (locked) locked.style.display = 'none';
+  if (unlocked) unlocked.style.display = 'block';
+  if (nomEl) nomEl.textContent = nom;
+}
+
+(function() {
+  var savedNom = localStorage.getItem('proNom');
+  if (savedNom) {
+    document.addEventListener('DOMContentLoaded', function() { showProUnlocked(savedNom); });
+  }
+})();
