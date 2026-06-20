@@ -702,9 +702,24 @@
     <strong style="color:#555;">Géolocalisation</strong> — Utilisée uniquement pour afficher les défibrillateurs à proximité et estimer votre adresse en cas d'urgence. Elle reste sur votre appareil et n'est jamais enregistrée.<br><br>
     <strong style="color:#555;">Préférences locales</strong> — Le mode nuit est mémorisé directement sur votre appareil (aucune transmission).<br><br>
     <strong style="color:#555;">Services tiers</strong> — Pour convertir votre position GPS en adresse lisible, l'application interroge le service OpenStreetMap (Nominatim). Aucune donnée n'est conservée par SOS Urgence lors de cet échange.<br><br>
-    <strong style="color:#555;">Aucun compte, aucun suivi</strong> — L'application ne nécessite pas de création de compte et ne contient aucun outil de suivi publicitaire ou statistique.
+   <strong style="color:#555;">Aucun compte, aucun suivi</strong> — L'application ne nécessite pas de création de compte et ne contient aucun outil de suivi publicitaire ou statistique.
   </div>
 </div>
+
+<div style="border-top:1px solid #eee;padding-top:16px;margin-bottom:16px;" id="pro-section">
+  <div style="font-family:'Oswald',sans-serif;font-size:.7rem;color:#aaa;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;">Espace Pro</div>
+  <div id="pro-locked">
+    <div style="font-size:.82rem;color:#888;margin-bottom:8px;">Vous avez un code entreprise ou mairie ?</div>
+    <input id="pro-code-input" type="text" placeholder="Code d'activation" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.95rem;margin-bottom:8px;">
+    <button onclick="activerCodePro()" style="width:100%;background:#0D0D0D;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.05em;cursor:pointer;">Activer</button>
+    <div id="pro-error" style="font-size:.78rem;color:var(--red);margin-top:6px;"></div>
+  </div>
+  <div id="pro-unlocked" style="display:none;">
+    <div style="font-size:.9rem;color:#0D0D0D;font-weight:700;">✓ Mode Pro activé</div>
+    <div id="pro-nom" style="font-size:.85rem;color:#555;margin-top:2px;"></div>
+  </div>
+</div>
+
   </div>
 </div>
 
