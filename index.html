@@ -695,8 +695,13 @@
 
 <div style="border-top:1px solid #eee;padding-top:16px;margin-bottom:16px;" id="pro-section">
   <div style="font-family:'Oswald',sans-serif;font-size:.7rem;color:#aaa;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;">Espace Pro</div>
-  <div id="pro-locked">
-    <div style="font-size:.82rem;color:#888;margin-bottom:8px;">Vous avez un code entreprise ou mairie ?</div>
+  <div id="pro-choice">
+    <button onclick="document.getElementById('pro-choice').style.display='none';document.getElementById('pro-locked').style.display='block';" style="width:100%;background:#f5f5f5;color:#0D0D0D;border:none;border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:.85rem;margin-bottom:8px;cursor:pointer;text-align:left;">Je suis salarié / citoyen</button>
+    <button onclick="window.open('https://ugomaker.github.io/sos-pro/','_blank')" style="width:100%;background:#f5f5f5;color:#0D0D0D;border:none;border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:.85rem;margin-bottom:8px;cursor:pointer;text-align:left;">Je suis une entreprise / collectivité</button>
+    <button onclick="window.open('https://ugomaker.github.io/sos-pro/','_blank')" style="width:100%;background:#f5f5f5;color:#0D0D0D;border:none;border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;text-align:left;">Je suis administrateur</button>
+  </div>
+  <div id="pro-locked" style="display:none;">
+    <div style="font-size:.82rem;color:#888;margin-bottom:8px;">Entrez votre code entreprise ou mairie :</div>
     <input id="pro-code-input" type="text" placeholder="Code d'activation" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.95rem;margin-bottom:8px;">
     <button onclick="activerCodePro()" style="width:100%;background:#0D0D0D;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.05em;cursor:pointer;">Activer</button>
     <div id="pro-error" style="font-size:.78rem;color:var(--red);margin-top:6px;"></div>
