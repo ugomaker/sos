@@ -469,7 +469,7 @@ function getSupabaseClient() {
 function activerCodePro() {
   var input = document.getElementById('pro-code-input');
   var errorEl = document.getElementById('pro-error');
-  var code = input.value.trim();
+  var code = input.value.trim().toUpperCase();
   errorEl.textContent = '';
   if (!code) return;
 
