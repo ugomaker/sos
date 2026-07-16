@@ -701,12 +701,14 @@
     <button onclick="window.open('https://ugomaker.github.io/sos-pro/','_blank')" style="width:100%;background:#f5f5f5;color:#0D0D0D;border:none;border-radius:8px;padding:12px;font-family:'Oswald',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;text-align:left;">Je suis administrateur</button>
   </div>
   <div id="pro-locked" style="display:none;">
-    <button onclick="document.getElementById('pro-locked').style.display='none';document.getElementById('pro-choice').style.display='block';document.getElementById('pro-error').textContent='';document.getElementById('pro-code-input').value='';" style="background:none;border:none;color:#888;font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+    <button onclick="document.getElementById('pro-locked').style.display='none';document.getElementById('pro-choice').style.display='block';document.getElementById('pro-error').textContent='';document.getElementById('pro-code-input').value='';document.getElementById('pro-initiales-input').value='';" style="background:none;border:none;color:#888;font-family:'Oswald',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:6px;">
       <span style="display:inline-block;width:7px;height:7px;border-left:2px solid #888;border-bottom:2px solid #888;transform:rotate(45deg);"></span>
       Retour
     </button>
     <div style="font-size:.82rem;color:#888;margin-bottom:8px;">Entrez votre code entreprise ou mairie :</div>
     <input id="pro-code-input" type="text" placeholder="Code d'activation" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.95rem;margin-bottom:8px;">
+    <input id="pro-initiales-input" type="text" placeholder="Vos initiales (facultatif, ex : JD)" maxlength="6" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:.95rem;margin-bottom:4px;text-transform:uppercase;">
+    <div style="font-size:.72rem;color:#aaa;margin-bottom:8px;">Facultatif — sert uniquement à votre entreprise pour un suivi indicatif, aucune donnée personnelle.</div>
     <button onclick="activerCodePro()" style="width:100%;background:#0D0D0D;color:#fff;border:none;border-radius:8px;padding:11px;font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:.05em;cursor:pointer;">Activer</button>
     <div id="pro-error" style="font-size:.78rem;color:var(--red);margin-top:6px;"></div>
   </div>

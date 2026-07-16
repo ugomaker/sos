@@ -468,10 +468,12 @@ function getSupabaseClient() {
 
 function activerCodePro() {
   var input = document.getElementById('pro-code-input');
+  var initialesInput = document.getElementById('pro-initiales-input');
   var errorEl = document.getElementById('pro-error');
   var code = input.value.trim().toUpperCase();
+  var initiales = initialesInput ? initialesInput.value.trim().toUpperCase() : '';
   errorEl.textContent = '';
-  if (!code) return;
+  if (!code) { errorEl.textContent = 'Merci d\'indiquer le code.'; return; }
 
   var client = getSupabaseClient();
   if (!client) { errorEl.textContent = 'Connexion indisponible, réessayez.'; return; }
@@ -485,8 +487,9 @@ function activerCodePro() {
       localStorage.setItem('proCode', code);
       localStorage.setItem('proNom', res.data.nom);
       localStorage.setItem('proType', res.data.type);
+      if (initiales) localStorage.setItem('proInitiales', initiales);
       showProUnlocked(res.data.nom);
-      client.from('activations').insert({ code: code });
+      client.from('activations').insert({ code: code, initiales: initiales || null });
     })
     .catch(function() { errorEl.textContent = 'Erreur réseau, réessayez.'; });
 }
