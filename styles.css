@@ -430,6 +430,22 @@
       transition: opacity .15s; max-width: 200px;
     }
     .btn-hemorragie:active { opacity: .8; }
+    /* ── PROFIL : ENFANT / FEMME ENCEINTE ── */
+    .profil-bar { width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 12px; background:#f1f1f1; border-bottom:1px solid #ddd; }
+    .profil-chip { display:flex; align-items:center; gap:6px; background:#fff; border:2px solid #888; color:#333; border-radius:20px; padding:5px 12px; font-family:'Oswald',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; }
+    .profil-chip .check-box { width:16px; height:16px; border:2px solid #888; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; font-size:.75rem; line-height:1; }
+    .profil-chip.active { background:#1A4A8A; border-color:#1A4A8A; color:#fff; }
+    .profil-chip.active .check-box { border-color:#fff; }
+    .profil-chip.enceinte.active { background:#8E3B8A; border-color:#8E3B8A; }
+    .only-enfant, .only-enceinte { display:none; }
+    body.mode-enfant .only-enfant, body.mode-enceinte .only-enceinte { display:block; }
+    .profil-note { width:100%; max-width:520px; margin:8px auto; padding:10px 14px; background:#eef4ff; border-left:4px solid #1A4A8A; border-radius:8px; font-size:.9rem; line-height:1.45; color:#222; box-sizing:border-box; }
+    .profil-note.only-enceinte { background:#fbeefb; border-left-color:#8E3B8A; }
+    #s-cardiac .profil-note { margin:8px 12px; width:auto; max-width:none; }
+    body.mode-nuit .profil-bar { background:#111; border-color:#333; }
+    body.mode-nuit .profil-chip { background:#222; color:#eee; border-color:#777; }
+    body.mode-nuit .profil-note { background:#1b2a44; color:#eee; }
+    body.mode-nuit .profil-note.only-enceinte { background:#3a1f3a; }
     /* ── MENU URGENCE ── */
     .menu-wrap { width:100%; max-width:520px; margin:0 auto; padding:18px 16px 40px; display:flex; flex-direction:column; gap:14px; flex:1; }
     .menu-title { font-family:'Oswald',sans-serif; font-size:1.6rem; font-weight:700; text-align:center; letter-spacing:.04em; }
