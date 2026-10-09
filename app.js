@@ -95,7 +95,8 @@ function attachHandlers() {
       switch(action) {
         case 'go':                  go(target); break;
         case 'respireNon':          respireNon(); break;
-        case 'startCardiac':        startCardiac(); break;
+        case 'startCardiac':        cardiacFromMenu = false; startCardiac(); break;
+        case 'startCardiacMenu':    cardiacFromMenu = true;  startCardiac(); break;
         case 'retourDepuisCardiac': retourDepuisCardiac(); break;
         case 'goBack': if (previousScreen) go(previousScreen); break;
         case 'activerSoignant':     activerSoignant(); break;
@@ -145,11 +146,13 @@ function activerSoignant() {
   }
 }
 
-function respireNon() { startCardiac(); }
+var cardiacFromMenu = false;
+function respireNon() { cardiacFromMenu = false; startCardiac(); }
 
 function retourDepuisCardiac() {
   stopMetro(); stopAutoSwipe(); stopChrono();
-  go('s-respire');
+  go(cardiacFromMenu ? 's-menu' : 's-respire');
+  cardiacFromMenu = false;
 }
 
 // ============================================================
