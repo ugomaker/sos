@@ -73,6 +73,7 @@ function go(id) {
   var bar = document.getElementById('bottom-bar');
   if (bar) bar.style.display = (id === 's-welcome') ? 'flex' : 'none';
   if (id === 's-pls') { startPlsTimer(); } else { stopPlsTimer(); }
+  if (id === 's-hemorragie' && window.hemoReset) window.hemoReset();
   attachHandlers();
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -497,19 +498,34 @@ function toggleNuit() {
     a2.setAttribute('dur', '1.2s'); a2.setAttribute('repeatCount', 'indefinite');
     pulse.appendChild(a1); pulse.appendChild(a2);
 
+    // Garrot : quelques cm au-dessus de la plaie (côté cœur), sur le même segment,
+    // jamais sur une articulation : sinon juste au-dessus de celle-ci.
     var bandY = null, bandHalf = 0, where = '';
+    var by = Math.max(8, lp.y - 14);
+    var seg = '', joint = '';
     if (type === 'bras') {
-      bandY = Math.max(8, lp.y - 14); bandHalf = 13;
-      where = 'sur le <b>bras</b>, 5 à 7 cm <b>au-dessus de la plaie</b> (côté épaule)';
+      bandHalf = 13; seg = 'bras';
+      if (by > 56) { by = 52; }
     } else if (type === 'avantbras') {
-      bandY = 50; bandHalf = 13;
-      where = 'sur le <b>bras, au-dessus du coude</b>';
+      bandHalf = 12; seg = 'avant-bras';
+      if (by >= 50 && by <= 76) { by = 46; joint = 'du coude'; }          // coude
+      else if (by >= 114 && by <= 134) { by = 110; joint = 'du poignet'; } // poignet
     } else if (type === 'cuisse') {
-      bandY = Math.max(10, lp.y - 14); bandHalf = 16;
-      where = 'sur la <b>cuisse</b>, 5 à 7 cm <b>au-dessus de la plaie</b> (côté hanche)';
+      bandHalf = 16; seg = 'cuisse';
+      if (by > 88) { by = 84; }
     } else if (type === 'jambe') {
-      bandY = 78; bandHalf = 16;
-      where = 'sur la <b>cuisse, au-dessus du genou</b>';
+      bandHalf = 15; seg = 'jambe';
+      if (by >= 88 && by <= 118) { by = 84; joint = 'du genou'; }          // genou
+      else if (by >= 190) { by = 184; joint = 'de la cheville'; }          // cheville
+    }
+    if (seg) {
+      bandY = by;
+      var JSEG = { 'du coude': 'sur le <b>bras</b>', 'du genou': 'sur la <b>cuisse</b>',
+                   'du poignet': 'sur l\'<b>avant-bras</b>', 'de la cheville': 'sur la <b>jambe</b>' };
+      var segTxt = joint ? JSEG[joint] : 'sur le segment <b>' + seg + '</b>';
+      where = joint
+        ? segTxt + ', <b>juste au-dessus ' + joint + '</b> (jamais sur l\'articulation)'
+        : segTxt + ', <b>5 à 8 cm au-dessus de la plaie</b> (côté cœur)';
     }
 
     var html = '<div class="card-title">' + nom + '</div>';
@@ -602,6 +618,21 @@ function toggleNuit() {
   });
   var saved = parseInt(localStorage.getItem('garrotStart') || '0', 10);
   if (saved && Date.now() - saved < 24 * 3600 * 1000) startTimer(saved); else stopTimer();
+
+  // --- Étape 1 (compression) -> étape 2 (schéma) ---
+  var step1 = document.getElementById('hemo-step1');
+  var step2 = document.getElementById('hemo-step2');
+  document.getElementById('hemo-persist').addEventListener('click', function() {
+    step2.classList.add('open');
+    this.style.display = 'none';
+    step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  window.hemoReset = function() {
+    step2.classList.remove('open');
+    var b = document.getElementById('hemo-persist');
+    if (b) b.style.display = '';
+    if (DOS) applyView(false); else clear();
+  };
 
   svg.addEventListener('click', function(e) {
     var zone = e.target.closest('.hemo-zone');
