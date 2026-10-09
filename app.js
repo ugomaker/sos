@@ -552,6 +552,7 @@ function toggleNuit() {
       z.setAttribute('data-nom', n);
     });
     document.getElementById('hemo-back').style.display = dos ? '' : 'none';
+    document.getElementById('hemo-front').style.display = dos ? 'none' : '';
     document.querySelectorAll('[data-hemo-view]').forEach(function(b) {
       b.classList.toggle('on', (b.getAttribute('data-hemo-view') === 'dos') === dos);
     });
