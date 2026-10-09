@@ -660,7 +660,8 @@ function activerCodePro() {
       localStorage.setItem('proType', res.data.type);
       if (initiales) localStorage.setItem('proInitiales', initiales);
       showProUnlocked(res.data.nom);
-      client.from('activations').insert({ code: code, initiales: initiales || null });
+      client.from('activations').insert({ code: code, initiales: initiales || null })
+        .then(function(r) { if (r && r.error) console.error('Activation non enregistrée :', r.error); });
     })
     .catch(function() { errorEl.textContent = 'Erreur réseau, réessayez.'; });
 }
