@@ -1,4 +1,4 @@
-const CACHE = 'sos-urgence-v7';
+const CACHE = 'sos-urgence-v8';
 
 self.addEventListener('install', function(e) {
   self.skipWaiting();
