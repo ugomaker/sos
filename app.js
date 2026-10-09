@@ -332,7 +332,7 @@ function initMap() {
 
 function buildMap(lat, lng) {
   defiMap = L.map('defi-map2', { zoomControl: true }).setView([lat, lng], 15);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_4f6e_1_988071f6ff6a817f95a27132', {
     attribution: '\u00a9 OSM \u00a9 CARTO', maxZoom: 19
   }).addTo(defiMap);
   L.circleMarker([lat, lng], { color: '#CC1A1A', weight: 3, fillColor: '#CC1A1A', fillOpacity: 1, radius: 8 })
