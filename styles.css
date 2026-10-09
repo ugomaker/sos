@@ -454,6 +454,9 @@
     .hemo-timer-clock { font-family:'Oswald',sans-serif; font-size:2.4rem; font-weight:700; color:#ff5a5a; }
     .hemo-timer-sub { font-size:.85rem; opacity:.9; }
     .hemo-timer-reset { margin-top:6px; background:none; border:1px solid rgba(255,255,255,.5); color:#fff; border-radius:8px; padding:4px 12px; font-size:.8rem; cursor:pointer; }
+    .hemo-persist-btn { display:block; width:100%; margin-top:12px; border:none; border-radius:12px; background:var(--red); color:#fff; font-family:'Oswald',sans-serif; font-size:1.1rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:14px; cursor:pointer; }
+    .hemo-persist-btn:active { opacity:.85; }
+    #hemo-step2.open { display:flex !important; }
     .hemo-timer-btn { display:block; width:100%; margin-top:10px; border:none; border-radius:10px; background:#111; color:#fff; font-family:'Oswald',sans-serif; font-size:1rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:12px; cursor:pointer; }
     body.mode-nuit .hemo-timer-btn { background:#eee; color:#111; }
     /* ── ECRAN HEMORRAGIE ── */
