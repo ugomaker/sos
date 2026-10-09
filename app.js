@@ -74,6 +74,7 @@ function go(id) {
   if (bar) bar.style.display = (id === 's-welcome') ? 'flex' : 'none';
   if (id === 's-pls') { startPlsTimer(); } else { stopPlsTimer(); }
   if (id === 's-hemorragie' && window.hemoReset) window.hemoReset();
+  if (id === 's-welcome' && window.profilReset) window.profilReset();
   attachHandlers();
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -448,6 +449,49 @@ function toggleNuit() {
     var btn = document.getElementById('btn-night');
     if (btn) btn.textContent = 'Mode jour';
   }
+})();
+
+// ============================================================
+// PROFIL : ENFANT / FEMME ENCEINTE (cases en haut de chaque écran)
+// ============================================================
+(function() {
+  function refresh() {
+    var enf = document.body.classList.contains('mode-enfant');
+    var enc = document.body.classList.contains('mode-enceinte');
+    document.querySelectorAll('.profil-chip').forEach(function(c) {
+      var on = c.getAttribute('data-profil') === 'enfant' ? enf : enc;
+      c.classList.toggle('active', on);
+      var box = c.querySelector('.check-box');
+      if (box) box.textContent = on ? '✓' : '';
+    });
+  }
+  function toggle(kind) {
+    document.body.classList.toggle(kind === 'enfant' ? 'mode-enfant' : 'mode-enceinte');
+    refresh();
+  }
+  function makeChip(kind, label) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'profil-chip' + (kind === 'enceinte' ? ' enceinte' : '');
+    b.setAttribute('data-profil', kind);
+    b.innerHTML = '<span class="check-box"></span>' + label;
+    b.addEventListener('click', function() { toggle(kind); });
+    return b;
+  }
+  document.querySelectorAll('.screen').forEach(function(s) {
+    if (s.id === 's-welcome') return;
+    var bar = document.createElement('div');
+    bar.className = 'profil-bar';
+    bar.appendChild(makeChip('enfant', 'Enfant'));
+    bar.appendChild(makeChip('enceinte', 'Femme enceinte'));
+    var nav = s.querySelector(':scope > .nav-bar');
+    if (nav) nav.insertAdjacentElement('afterend', bar); else s.insertBefore(bar, s.firstChild);
+  });
+  window.profilReset = function() {
+    document.body.classList.remove('mode-enfant', 'mode-enceinte');
+    refresh();
+  };
+  refresh();
 })();
 
 // ============================================================
