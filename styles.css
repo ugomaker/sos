@@ -418,6 +418,71 @@
       max-width: 200px;
     }
     .btn-epilepsie:active { opacity: .8; }
+    /* ── BOUTON HEMORRAGIE ── */
+    .btn-hemorragie {
+      display: flex; align-items: center; justify-content: center;
+      border: none; border-radius: 12px; cursor: pointer;
+      font-family: 'Oswald', sans-serif; font-size: 1.1rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 16px 20px; margin-top: 8px; color: #fff;
+      background: repeating-linear-gradient(45deg,#CC1A1A,#CC1A1A 8px,#a81414 8px,#a81414 16px);
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      transition: opacity .15s; max-width: 200px;
+    }
+    .btn-hemorragie:active { opacity: .8; }
+    /* ── MENU URGENCE ── */
+    .menu-wrap { width:100%; max-width:520px; margin:0 auto; padding:18px 16px 40px; display:flex; flex-direction:column; gap:14px; flex:1; }
+    .menu-title { font-family:'Oswald',sans-serif; font-size:1.6rem; font-weight:700; text-align:center; letter-spacing:.04em; }
+    .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; flex:1; min-height:340px; }
+    .menu-tile { border:none; border-radius:18px; cursor:pointer; color:#fff; font-family:'Oswald',sans-serif; font-size:1.35rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:12px; display:flex; align-items:center; justify-content:center; text-align:center; box-shadow:0 3px 10px rgba(0,0,0,.2); transition:transform .1s, opacity .15s; }
+    .menu-tile:active { transform:scale(.97); opacity:.9; }
+    .menu-perte { background:#1A4A8A; }
+    .menu-hemo  { background:#CC1A1A; }
+    .menu-etouf { background:#E07B00; }
+    .menu-epi   { background:#2E7D32; }
+    body.mode-nuit .menu-title { color:#eee; }
+    /* ── HEMORRAGIE : extras ── */
+    .hemo-toggle { display:flex; justify-content:center; gap:0; }
+    .hemo-toggle button { font-family:'Oswald',sans-serif; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:8px 26px; border:2px solid #222; background:#fff; color:#222; cursor:pointer; }
+    .hemo-toggle button:first-child { border-radius:10px 0 0 10px; }
+    .hemo-toggle button:last-child { border-radius:0 10px 10px 0; border-left:none; }
+    .hemo-toggle button.on { background:#222; color:#fff; }
+    body.mode-nuit .hemo-toggle button { background:#2a2a2a; color:#eee; border-color:#ddd; }
+    body.mode-nuit .hemo-toggle button.on { background:#eee; color:#111; }
+    .hemo-timer-box { background:#111; color:#fff; border-radius:12px; padding:10px; text-align:center; position:sticky; top:0; z-index:5; }
+    .hemo-timer-label { font-size:.8rem; opacity:.85; text-transform:uppercase; letter-spacing:.08em; }
+    .hemo-timer-clock { font-family:'Oswald',sans-serif; font-size:2.4rem; font-weight:700; color:#ff5a5a; }
+    .hemo-timer-sub { font-size:.85rem; opacity:.9; }
+    .hemo-timer-reset { margin-top:6px; background:none; border:1px solid rgba(255,255,255,.5); color:#fff; border-radius:8px; padding:4px 12px; font-size:.8rem; cursor:pointer; }
+    .hemo-timer-btn { display:block; width:100%; margin-top:10px; border:none; border-radius:10px; background:#111; color:#fff; font-family:'Oswald',sans-serif; font-size:1rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:12px; cursor:pointer; }
+    body.mode-nuit .hemo-timer-btn { background:#eee; color:#111; }
+    /* ── ECRAN HEMORRAGIE ── */
+    .hemo-wrap { width:100%; max-width:520px; margin:0 auto; padding:14px 16px 48px; display:flex; flex-direction:column; gap:10px; }
+    .hemo-title { font-family:'Oswald',sans-serif; font-size:1.6rem; font-weight:700; letter-spacing:.06em; color:var(--red); text-align:center; }
+    .hemo-hint { text-align:center; font-size:.95rem; color:#333; }
+    .hemo-figure { display:flex; justify-content:center; }
+    .hemo-figure svg { width:100%; max-width:260px; height:auto; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+    .hemo-zone { fill:#e4e4e4; stroke:#222; stroke-width:2; cursor:pointer; }
+    .hemo-zone:active { fill:#ccc; }
+    .hemo-zone.sel { fill:#f5c6c6; }
+    .hemo-caption { display:flex; justify-content:space-between; font-size:.7rem; color:#666; }
+    .hemo-legend { display:flex; justify-content:center; gap:18px; font-size:.8rem; color:#333; }
+    .hemo-dot { display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--red); margin-right:5px; vertical-align:-1px; }
+    .hemo-bandicon { display:inline-block; width:16px; height:7px; background:#111; border:2px solid #fff; outline:1px solid #111; margin-right:5px; vertical-align:1px; }
+    .hemo-marker-wound { fill:var(--red); stroke:#fff; stroke-width:2; pointer-events:none; }
+    .hemo-marker-band { fill:#111; stroke:#fff; stroke-width:1.5; pointer-events:none; }
+    .hemo-marker-text { font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; fill:#111; pointer-events:none; }
+    .hemo-step { margin:6px 0 0 18px; padding:0; font-size:.95rem; line-height:1.45; }
+    .hemo-step li { margin-bottom:4px; }
+    .hemo-alert { background:#fff3cd; border-left:4px solid var(--orange); padding:8px 10px; font-size:.9rem; margin-top:8px; }
+    body.mode-nuit .hemo-title { color:#ff6b6b; }
+    body.mode-nuit .hemo-hint, body.mode-nuit .hemo-legend, body.mode-nuit .hemo-step { color:#ddd; }
+    body.mode-nuit .hemo-caption { color:#aaa; }
+    body.mode-nuit .hemo-zone { fill:#3a3a3a; stroke:#ddd; }
+    body.mode-nuit .hemo-zone.sel { fill:#6b3030; }
+    body.mode-nuit .hemo-marker-band { fill:#fff; stroke:#000; }
+    body.mode-nuit .hemo-marker-text { fill:#fff; }
+    body.mode-nuit .hemo-alert { background:#3a3000; color:#eee; }
     /* ── BOUTON ETOUFFEMENT ── */
     .btn-etouffement {
       display: flex; align-items: center; justify-content: center;
