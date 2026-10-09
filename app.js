@@ -499,6 +499,9 @@ function toggleNuit() {
       var box = c.querySelector('.check-box');
       if (box) box.textContent = on ? '\u2713' : '';
     });
+    var enc = document.body.classList.contains('mode-enceinte');
+    document.querySelectorAll('.pls-img-adulte').forEach(function(i) { i.style.display = enc ? 'none' : 'block'; });
+    document.querySelectorAll('.pls-img-enceinte').forEach(function(i) { i.style.display = enc ? 'block' : 'none'; });
     if (window.renderCarousel) window.renderCarousel();
   }
   function toggle(kind) {
