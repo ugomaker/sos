@@ -446,6 +446,176 @@ function toggleNuit() {
   }
 })();
 
+// ============================================================
+// HEMORRAGIE : schéma interactif + emplacement du garrot
+// ============================================================
+(function() {
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = document.getElementById('hemo-svg');
+  var info = document.getElementById('hemo-info');
+  if (!svg || !info) return;
+
+  function mk(parent, tag, attrs) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    e.classList.add('hemo-mk');
+    parent.appendChild(e);
+    return e;
+  }
+
+  function clear() {
+    svg.querySelectorAll('.hemo-mk').forEach(function(n) { n.parentNode.removeChild(n); });
+    svg.querySelectorAll('.hemo-zone.sel').forEach(function(z) { z.classList.remove('sel'); });
+  }
+
+  function localPoint(parent, cx, cy) {
+    var p = svg.createSVGPoint();
+    p.x = cx; p.y = cy;
+    return p.matrixTransform(parent.getScreenCTM().inverse());
+  }
+
+  var STEPS_COMMON =
+    '<li>Appuyez <b>fort et directement</b> sur la plaie avec un tissu propre (ou la main protégée). Ne relâchez pas.</li>';
+
+  function render(zone, pt) {
+    clear();
+    zone.classList.add('sel');
+    var type = zone.getAttribute('data-type');
+    var nom = zone.getAttribute('data-nom');
+    var parent = zone.parentNode;
+    var lp = localPoint(parent, pt.x, pt.y);
+    var limb = zone.closest('g[data-limb]');
+    var right = !!limb && /-d$/.test(limb.getAttribute('data-limb')); // côté gauche à l'écran
+
+    mk(parent, 'circle', { cx: lp.x, cy: lp.y, r: 6, 'class': 'hemo-marker-wound' });
+    var pulse = mk(parent, 'circle', { cx: lp.x, cy: lp.y, r: 6, fill: 'none', stroke: '#CC1A1A', 'stroke-width': 2, 'pointer-events': 'none' });
+    var a1 = document.createElementNS(NS, 'animate');
+    a1.setAttribute('attributeName', 'r'); a1.setAttribute('from', '6'); a1.setAttribute('to', '16');
+    a1.setAttribute('dur', '1.2s'); a1.setAttribute('repeatCount', 'indefinite');
+    var a2 = document.createElementNS(NS, 'animate');
+    a2.setAttribute('attributeName', 'opacity'); a2.setAttribute('from', '1'); a2.setAttribute('to', '0');
+    a2.setAttribute('dur', '1.2s'); a2.setAttribute('repeatCount', 'indefinite');
+    pulse.appendChild(a1); pulse.appendChild(a2);
+
+    var bandY = null, bandHalf = 0, where = '';
+    if (type === 'bras') {
+      bandY = Math.max(8, lp.y - 14); bandHalf = 13;
+      where = 'sur le <b>bras</b>, 5 à 7 cm <b>au-dessus de la plaie</b> (côté épaule)';
+    } else if (type === 'avantbras') {
+      bandY = 50; bandHalf = 13;
+      where = 'sur le <b>bras, au-dessus du coude</b>';
+    } else if (type === 'cuisse') {
+      bandY = Math.max(10, lp.y - 14); bandHalf = 16;
+      where = 'sur la <b>cuisse</b>, 5 à 7 cm <b>au-dessus de la plaie</b> (côté hanche)';
+    } else if (type === 'jambe') {
+      bandY = 78; bandHalf = 16;
+      where = 'sur la <b>cuisse, au-dessus du genou</b>';
+    }
+
+    var html = '<div class="card-title">' + nom + '</div>';
+    if (bandY !== null) {
+      mk(parent, 'rect', { x: -bandHalf, y: bandY - 4, width: bandHalf * 2, height: 8, rx: 2, 'class': 'hemo-marker-band' });
+      var t = mk(parent, 'text', {
+        x: right ? -bandHalf - 4 : bandHalf + 4, y: bandY + 4,
+        'text-anchor': right ? 'end' : 'start', 'class': 'hemo-marker-text'
+      });
+      t.textContent = 'GARROT';
+      html += '<ol class="hemo-step">' + STEPS_COMMON +
+        '<li>Si le sang <b>continue de couler</b> malgré la compression, ou si la plaie est très importante : posez un <b>garrot</b> ' + where + '. Jamais sur une articulation (coude, genou).</li>' +
+        '<li>Serrez jusqu\'à ce que le saignement <b>s\'arrête</b>.</li>' +
+        '<li><b>Notez l\'heure</b> de pose. Ne desserrez jamais.</li>' +
+        '<li>Appelez le <b>15</b> si ce n\'est pas fait. Allongez la victime.</li></ol>' +
+        '<button type="button" class="hemo-timer-btn" id="hemo-timer-start">Garrot posé : lancer le chrono</button>';
+    } else {
+      html += '<ol class="hemo-step">' + STEPS_COMMON +
+        '<li>Cette zone <b>ne permet pas de poser un garrot</b>. Continuez la compression sans relâcher, même si le tissu se remplit de sang (ajoutez-en par-dessus).</li>' +
+        '<li>Allongez la victime et appelez le <b>15</b>.</li></ol>';
+    }
+    html += '<div class="hemo-alert">Appelez le 15 dans tous les cas. Suivez les instructions du SAMU.</div>';
+    info.innerHTML = html;
+    info.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // --- Vue face / dos ---
+  var DOS = false;
+  var BASE = {};
+  svg.querySelectorAll('.hemo-zone').forEach(function(z, i) { z.setAttribute('data-id', i); BASE[i] = z.getAttribute('data-nom'); });
+  function applyView(dos) {
+    DOS = dos;
+    svg.querySelectorAll('.hemo-zone').forEach(function(z) {
+      var n = BASE[z.getAttribute('data-id')];
+      if (dos) {
+        var fem = /^(Épaule|Main|Cuisse|Jambe|Hanche)/.test(n);
+        n = n.replace(/ droite?$/, ' #G#').replace(/ gauche$/, fem ? ' droite' : ' droit').replace(/ #G#$/, ' gauche')
+             .replace('Jambe', 'Mollet').replace(' (tibia)', '').replace('Genou', 'Arrière du genou');
+      }
+      z.setAttribute('data-nom', n);
+    });
+    document.getElementById('hemo-back').style.display = dos ? '' : 'none';
+    document.querySelectorAll('[data-hemo-view]').forEach(function(b) {
+      b.classList.toggle('on', (b.getAttribute('data-hemo-view') === 'dos') === dos);
+    });
+    var cap = document.querySelector('.hemo-caption');
+    if (cap) cap.innerHTML = dos ? '<span>&#9664; Gauche de la victime</span><span>Droite de la victime &#9654;</span>'
+                                  : '<span>&#9664; Droite de la victime</span><span>Gauche de la victime &#9654;</span>';
+    clear();
+    info.innerHTML = '<div class="card-title">Que faire ?</div><p style="font-size:.95rem;">Touchez sur le schéma la zone qui saigne.</p>' +
+      '<div class="hemo-alert">En attendant : appuyez fort sur la plaie avec un tissu propre.</div>';
+  }
+  document.querySelectorAll('[data-hemo-view]').forEach(function(b) {
+    b.addEventListener('click', function() { applyView(b.getAttribute('data-hemo-view') === 'dos'); });
+  });
+
+  // --- Chrono du garrot ---
+  var box = document.getElementById('hemo-timer-box');
+  var clock = document.getElementById('hemo-timer-clock');
+  var sub = document.getElementById('hemo-timer-sub');
+  var tick = null;
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function update() {
+    var t0 = parseInt(localStorage.getItem('garrotStart') || '0', 10);
+    if (!t0) return;
+    var s = Math.floor((Date.now() - t0) / 1000);
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+    clock.textContent = (h ? h + ':' : '') + pad(m) + ':' + pad(s % 60);
+    var d = new Date(t0);
+    sub.textContent = 'Posé à ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' — à transmettre aux secours';
+  }
+  function startTimer(t0) {
+    localStorage.setItem('garrotStart', String(t0));
+    box.style.display = '';
+    update();
+    if (tick) clearInterval(tick);
+    tick = setInterval(update, 1000);
+  }
+  function stopTimer() {
+    localStorage.removeItem('garrotStart');
+    box.style.display = 'none';
+    if (tick) { clearInterval(tick); tick = null; }
+  }
+  info.addEventListener('click', function(e) {
+    if (e.target.id === 'hemo-timer-start') startTimer(Date.now());
+  });
+  document.getElementById('hemo-timer-reset').addEventListener('click', function() {
+    if (confirm('Arrêter le chrono du garrot ?')) stopTimer();
+  });
+  var saved = parseInt(localStorage.getItem('garrotStart') || '0', 10);
+  if (saved && Date.now() - saved < 24 * 3600 * 1000) startTimer(saved); else stopTimer();
+
+  svg.addEventListener('click', function(e) {
+    var zone = e.target.closest('.hemo-zone');
+    if (!zone) return;
+    var p = svg.createSVGPoint();
+    p.x = e.clientX; p.y = e.clientY;
+    var root = p.matrixTransform(svg.getScreenCTM().inverse());
+    // render attend un point en coordonnées écran -> on le reconvertit dans le parent
+    render(zone, { x: e.clientX, y: e.clientY });
+  });
+
+  info.innerHTML = '<div class="card-title">Que faire ?</div><p style="font-size:.95rem;">Touchez sur le schéma la zone qui saigne.</p>' +
+    '<div class="hemo-alert">En attendant : appuyez fort sur la plaie avec un tissu propre.</div>';
+})();
+
 // Service Worker pour PWA offline
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
