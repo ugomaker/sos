@@ -525,7 +525,7 @@ function toggleNuit() {
       var segTxt = joint ? JSEG[joint] : 'sur le segment <b>' + seg + '</b>';
       where = joint
         ? segTxt + ', <b>juste au-dessus ' + joint + '</b> (jamais sur l\'articulation)'
-        : segTxt + ', <b>5 à 8 cm au-dessus de la plaie</b> (côté cœur)';
+        : segTxt + ', <b>5 à 8 cm au-dessus de la plaie</b>';
     }
 
     var html = '<div class="card-title">' + nom + '</div>';
