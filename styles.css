@@ -480,6 +480,8 @@
     body.mode-nuit .hemo-caption { color:#aaa; }
     body.mode-nuit .hemo-zone { fill:#3a3a3a; stroke:#ddd; }
     body.mode-nuit .hemo-zone.sel { fill:#6b3030; }
+    body.mode-nuit #hemo-front *, body.mode-nuit #hemo-back * { stroke:#ddd; }
+    body.mode-nuit #hemo-front circle { fill:#ddd; }
     body.mode-nuit .hemo-marker-band { fill:#fff; stroke:#000; }
     body.mode-nuit .hemo-marker-text { fill:#fff; }
     body.mode-nuit .hemo-alert { background:#3a3000; color:#eee; }
