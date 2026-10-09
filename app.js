@@ -127,24 +127,7 @@ function activerSoignant() {
     var box = btn.querySelector('.check-box');
     if (box) box.textContent = isSoignant ? '\u2713' : '';
   });
-  if (isSoignant) {
-    var slide = document.getElementById('slide-insufflation');
-    if (slide) slide.style.display = 'flex';
-    var dots = document.getElementById('carouselDots');
-    if (dots && dots.children.length === 3) {
-      var d = document.createElement('div');
-      d.className = 'cdot'; d.style.background = 'var(--blue)';
-      d.setAttribute('data-action', 'carouselGo'); d.setAttribute('data-idx', '3');
-      dots.appendChild(d); attachHandlers();
-    }
-    var mt = document.querySelector('.slide-main-text');
-    if (mt) mt.innerHTML = 'COMMENCEZ LE<br>MASSAGE CARDIAQUE<br><span style="font-size:1.4rem;color:var(--blue);">30 : 2</span>';
-  } else {
-    var slide2 = document.getElementById('slide-insufflation');
-    if (slide2) slide2.style.display = 'none';
-    var mt2 = document.querySelector('.slide-main-text');
-    if (mt2) mt2.innerHTML = 'COMMENCEZ LE<br>MASSAGE CARDIAQUE';
-  }
+  if (window.renderCarousel) window.renderCarousel();
 }
 
 var cardiacFromMenu = false;
@@ -159,7 +142,41 @@ function retourDepuisCardiac() {
 // ============================================================
 // CAROUSEL
 // ============================================================
-function slideCount() { return isSoignant ? 4 : 3; }
+function currentProfil() {
+  var c = document.body.classList;
+  if (c.contains('mode-nourrisson')) return 'nourrisson';
+  if (c.contains('mode-enfant')) return 'enfant';
+  if (c.contains('mode-enceinte')) return 'enceinte';
+  return 'adulte';
+}
+function visibleSlides() {
+  var prof = currentProfil();
+  return Array.prototype.filter.call(document.querySelectorAll('#carouselTrack > .carousel-slide'), function(sl) {
+    var p = (sl.getAttribute('data-p') || 'adulte enceinte nourrisson enfant').split(' ');
+    if (p.indexOf(prof) === -1) return false;
+    if (sl.getAttribute('data-soignant') === '1' && !isSoignant) return false;
+    return true;
+  });
+}
+function slideCount() { return visibleSlides().length || 1; }
+window.renderCarousel = function() {
+  var vis = visibleSlides();
+  document.querySelectorAll('#carouselTrack > .carousel-slide').forEach(function(sl) {
+    sl.style.display = vis.indexOf(sl) === -1 ? 'none' : '';
+  });
+  var dots = document.getElementById('carouselDots');
+  if (dots) {
+    dots.innerHTML = '';
+    vis.forEach(function(_, i) {
+      var d = document.createElement('div');
+      d.className = 'cdot' + (i === 0 ? ' active' : '');
+      d.setAttribute('data-action', 'carouselGo');
+      d.setAttribute('data-idx', String(i));
+      dots.appendChild(d);
+    });
+  }
+  carouselGo(0);
+};
 function carouselGo(idx) {
   carouselIdx = (idx + slideCount()) % slideCount();
   var track = document.getElementById('carouselTrack');
@@ -213,16 +230,30 @@ function flashDae() {
 // ============================================================
 // METRONOME
 // ============================================================
+function isChild() { var c = document.body.classList; return c.contains('mode-nourrisson') || c.contains('mode-enfant'); }
+function cycleBeats() { return (isSoignant && isChild()) ? 15 : 30; }
+var initialBreathTimer = null;
+function startInitialBreaths(n) {
+  var i = 0;
+  (function next() {
+    if (i >= n) { initialBreathTimer = null; beatCount = 0; startMetro(); return; }
+    i++;
+    playClick(440, 0.5, 0.6);
+    flashEl('s-cardiac', 'insuf-flash', 500); flashEl('carousel', 'insuf-flash', 500);
+    initialBreathTimer = setTimeout(next, INSUF_DURATION);
+  })();
+}
 function beat() {
   if (!isSoignant) {
     playClick(880, 0.55, 0.08);
     flashEl('s-cardiac', 'beat-flash', 130); flashEl('carousel', 'beat-flash', 130); flashDae();
   } else {
     beatCount++;
-    if (beatCount <= 30) {
+    var N = cycleBeats();
+    if (beatCount <= N) {
       playClick(880, 0.6, 0.08);
       flashEl('s-cardiac', 'beat-flash', 130); flashEl('carousel', 'beat-flash', 130); flashDae();
-      if (beatCount === 30) { clearInterval(metroTimer); metroOn = false; setTimeout(function() { insufflation(1); }, 250); }
+      if (beatCount === N) { clearInterval(metroTimer); metroOn = false; setTimeout(function() { insufflation(1); }, 250); }
     }
   }
 }
@@ -235,6 +266,7 @@ function insufflation(n) {
 function startMetro() { if (metroOn) return; metroOn = true; beat(); metroTimer = setInterval(beat, BEAT_MS); }
 function stopMetro() {
   metroOn = false; clearInterval(metroTimer);
+  if (initialBreathTimer) { clearTimeout(initialBreathTimer); initialBreathTimer = null; }
   var s = document.getElementById('s-cardiac'); var c = document.getElementById('carousel');
   if (s) s.classList.remove('beat-flash', 'insuf-flash');
   if (c) c.classList.remove('beat-flash', 'insuf-flash');
@@ -297,7 +329,9 @@ function fetchAddress() {
 // ECRAN CARDIAQUE
 // ============================================================
 function startCardiac() {
-  go('s-cardiac'); setTimeout(startMetro, 200); startAutoSwipe();
+  go('s-cardiac'); if (window.renderCarousel) window.renderCarousel();
+  if (isSoignant && isChild()) { setTimeout(function() { startInitialBreaths(5); }, 200); } else { setTimeout(startMetro, 200); }
+  startAutoSwipe();
   if (!mapDone) { mapDone = true; setTimeout(initMap, 300); }
   startChrono();
   attachHandlers();
@@ -452,21 +486,25 @@ function toggleNuit() {
 })();
 
 // ============================================================
-// PROFIL : ENFANT / FEMME ENCEINTE (cases en haut de chaque écran)
+// PROFIL : NOURRISSON / ENFANT / FEMME ENCEINTE (cases en haut de chaque écran)
+// Les trois cases sont exclusives (une seule victime).
 // ============================================================
 (function() {
+  var KINDS = ['nourrisson', 'enfant', 'enceinte'];
   function refresh() {
-    var enf = document.body.classList.contains('mode-enfant');
-    var enc = document.body.classList.contains('mode-enceinte');
     document.querySelectorAll('.profil-chip').forEach(function(c) {
-      var on = c.getAttribute('data-profil') === 'enfant' ? enf : enc;
+      var k = c.getAttribute('data-profil');
+      var on = document.body.classList.contains('mode-' + k);
       c.classList.toggle('active', on);
       var box = c.querySelector('.check-box');
-      if (box) box.textContent = on ? '✓' : '';
+      if (box) box.textContent = on ? '\u2713' : '';
     });
+    if (window.renderCarousel) window.renderCarousel();
   }
   function toggle(kind) {
-    document.body.classList.toggle(kind === 'enfant' ? 'mode-enfant' : 'mode-enceinte');
+    var wasOn = document.body.classList.contains('mode-' + kind);
+    KINDS.forEach(function(k) { document.body.classList.remove('mode-' + k); });
+    if (!wasOn) document.body.classList.add('mode-' + kind);
     refresh();
   }
   function makeChip(kind, label) {
@@ -482,13 +520,17 @@ function toggleNuit() {
     if (s.id === 's-welcome') return;
     var bar = document.createElement('div');
     bar.className = 'profil-bar';
-    bar.appendChild(makeChip('enfant', 'Enfant'));
+    var left = document.createElement('div');
+    left.className = 'profil-left';
+    left.appendChild(makeChip('nourrisson', 'Nourrisson &lt; 1 an'));
+    left.appendChild(makeChip('enfant', 'Enfant &gt; 1 an'));
+    bar.appendChild(left);
     bar.appendChild(makeChip('enceinte', 'Femme enceinte'));
     var nav = s.querySelector(':scope > .nav-bar');
     if (nav) nav.insertAdjacentElement('afterend', bar); else s.insertBefore(bar, s.firstChild);
   });
   window.profilReset = function() {
-    document.body.classList.remove('mode-enfant', 'mode-enceinte');
+    KINDS.forEach(function(k) { document.body.classList.remove('mode-' + k); });
     refresh();
   };
   refresh();
