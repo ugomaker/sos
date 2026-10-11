@@ -500,6 +500,12 @@ function toggleNuit() {
       if (box) box.textContent = on ? '\u2713' : '';
     });
     var enc = document.body.classList.contains('mode-enceinte');
+    var prof = currentProfil();
+    document.querySelectorAll('[data-v]').forEach(function(e) {
+      var v = e.getAttribute('data-v');
+      var show = v.charAt(0) === '!' ? v.slice(1) !== prof : v === prof;
+      e.style.display = show ? (e.getAttribute('data-show') || 'block') : 'none';
+    });
     document.querySelectorAll('.pls-img-adulte').forEach(function(i) { i.style.display = enc ? 'none' : 'block'; });
     document.querySelectorAll('.pls-img-enceinte').forEach(function(i) { i.style.display = enc ? 'block' : 'none'; });
     if (window.renderCarousel) window.renderCarousel();
